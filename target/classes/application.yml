@@ -2,16 +2,10 @@ spring:
   data:
     mongodb:
       host: 182.61.23.125
-      database: notehub
+      database: noteshare
       username: admin
       password: admin
       authentication-database: admin
-
-  rabbitmq:
-    host: 182.61.23.125
-    port: 5672
-    username: guest
-    password: guest
 
   redis:
     host: 182.61.23.125
@@ -23,14 +17,14 @@ spring:
     host: smtp.qq.com
     port: 465
     username: 1452618379@qq.com
-    password: tpdvwwqgafgwicae
+    password: pakirsbjawwnbaaf
     default-encoding: utf-8
     properties:
       mail:
         smtp:
           ssl:
             enable: true
-    from: 1452618379@qq.com
+    from: notehub官方
   elasticsearch:
     rest:
       username: elastic

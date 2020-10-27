@@ -3,6 +3,7 @@ package com.ecnu.note.service;
 import com.ecnu.note.domain.mongo.Knowledge;
 import com.ecnu.note.domain.mongo.Note;
 import org.springframework.data.domain.Page;
+import org.springframework.data.redis.core.ZSetOperations;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
@@ -31,7 +32,7 @@ public interface NoteService {
 
     List<Note> findByAuthor(String email);
 
-    Set<String> findHotTag();
+    Set<ZSetOperations.TypedTuple<String>> findHotTag();
 
     List<Knowledge> searchMindMap(String keyword);
 

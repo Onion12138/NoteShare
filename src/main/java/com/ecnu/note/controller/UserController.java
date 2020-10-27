@@ -87,6 +87,15 @@ public class UserController {
         return BaseResponseVO.success();
     }
 
+    /**
+    * @description: 查看我的历史数据
+    * @param:  type
+     * 为publish时，即为我发布的笔记；
+     * 为view时，即为我查看的笔记；
+     * 为star时，即为我点赞的笔记；
+     * 为hate时，即为我踩的笔记；
+     * 为fork时，即为我分支的笔记；
+    */
     @GetMapping("/myRecord")
     public BaseResponseVO findMyRecord(@RequestParam String type) {
         String email = AuthUtil.getEmail();

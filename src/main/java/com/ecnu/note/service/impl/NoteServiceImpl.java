@@ -28,6 +28,7 @@ import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.data.mongodb.core.query.Update;
+import org.springframework.data.redis.core.BoundZSetOperations;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.core.ZSetOperations;
 import org.springframework.stereotype.Service;
@@ -36,6 +37,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.text.SimpleDateFormat;
 import java.time.LocalDateTime;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -100,20 +102,19 @@ public class NoteServiceImpl implements NoteService {
             redisTemplate.opsForHash().put(email + " : fork", new Date().toString(), id);
         }
         noteDao.save(note);
-        NoteSearch noteSearch = NoteSearch.builder()
-                .title(note.getTitle())
-                .createTime(note.getCreateTime().toString())
-                .updateTime(note.getUpdateTime().toString())
-                .email(note.getAuthorEmail())
-                .summary(note.getSummary())
-                .tag(note.getTag())
-                .id(id)
-                .build();
+        NoteSearch noteSearch = new NoteSearch();
+        noteSearch.setTitle(note.getTitle());
+        noteSearch.setCreateTime(note.getCreateTime().toString());
+        noteSearch.setUpdateTime(note.getUpdateTime().toString());
+        noteSearch.setEmail(note.getAuthorEmail());
+        noteSearch.setSummary(note.getSummary());
+        noteSearch.setTag(note.getTag());
+        note.setId(id);
         searchDao.save(noteSearch);
-        ZSetOperations<String, String> operations = redisTemplate.opsForZSet();
-        if (!operations.add("tag", note.getTag(),1))
-            operations.incrementScore("tag", note.getTag(),1);
-        redisTemplate.opsForHash().put(email + " : publish", new Date().toString(), id);
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+        BoundZSetOperations<String, String> zset = redisTemplate.boundZSetOps("tag");
+        zset.incrementScore(note.getTag(),1.0);
+        redisTemplate.opsForHash().put(email + " : publish", sdf.format(new Date()), id);
         return id;
     }
 
@@ -154,7 +155,8 @@ public class NoteServiceImpl implements NoteService {
             throw new RuntimeException("笔记已经被删除");
         }
         incField(noteId, "view");
-        redisTemplate.opsForHash().put(email + " : view", new Date().toString(), noteId);
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+        redisTemplate.opsForHash().put(email + " : view", sdf.format(new Date()), noteId);
         return note;
     }
 
@@ -166,8 +168,9 @@ public class NoteServiceImpl implements NoteService {
 
     @Override
     public void starOrHate(String type, String noteId, String email) {
-        redisTemplate.opsForHash().put(email + " : " + type, new Date().toString(), noteId);
         incField(noteId, type);
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+        redisTemplate.opsForHash().put(email + " : " + type, sdf.format(new Date()), noteId);
     }
 
     @Override
@@ -201,13 +204,13 @@ public class NoteServiceImpl implements NoteService {
     }
 
     @Override
-    public Set<String> findHotTag() {
-        return redisTemplate.opsForZSet().range("tag", 0, - 1);
+    public Set<ZSetOperations.TypedTuple<String>> findHotTag() {
+        return redisTemplate.opsForZSet().rangeWithScores("tag", 0, - 1);
     }
 
     @Override
     public List<Knowledge> searchMindMap(String keyword) {
-        return knowledgeDao.findAllByTitleLike(keyword);
+        return knowledgeDao.findAllByTitleLikeAndShareIsTrue(keyword);
     }
 
     @Override

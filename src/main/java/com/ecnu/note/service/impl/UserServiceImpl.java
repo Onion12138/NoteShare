@@ -35,6 +35,8 @@ import org.springframework.web.multipart.MultipartFile;
 import javax.validation.Valid;
 import java.io.IOException;
 import java.io.InputStream;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.*;
@@ -158,7 +160,7 @@ public class UserServiceImpl implements UserService {
     public void sendCode(String email) {
         String code = SaltUtil.getCode();
         redisTemplate.opsForValue().set("code_" + email, code, 10, TimeUnit.MINUTES);
-        String content = "这是你的验证码：" + code + ",此验证码10分钟内有效!" + email;
+        String content = "这是你的验证码：" + code + ",此验证码10分钟内有效。";
         new Thread(() -> mailService.sendMail(email,"notehub验证码", content)).start();
     }
 
@@ -228,11 +230,18 @@ public class UserServiceImpl implements UserService {
         for (Map.Entry<Object, Object> entry : entries.entrySet()) {
             RecordVO recordVO = new RecordVO();
             recordVO.setId((String) entry.getValue());
-            Date date = new Date((String) entry.getValue());
+            SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+            Date date = null;
+            try {
+                date = sdf.parse((String) entry.getKey());
+            } catch (ParseException e) {
+                e.printStackTrace();
+            }
             recordVO.setTime(date);
             recordVO.setNote(noteDao.findById(recordVO.getId()).orElse(Note.builder().build()));
             recordVOList.add(recordVO);
         }
+        recordVOList.sort((a, b) -> b.getTime().compareTo(a.getTime()));
         return recordVOList;
     }
 

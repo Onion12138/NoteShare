@@ -11,5 +11,5 @@ import java.util.List;
  */
 public interface KnowledgeDao extends MongoRepository<Knowledge, String> {
     List<Knowledge> findAllByEmail(String email);
-    List<Knowledge> findAllByTitleLike(String title);
+    List<Knowledge> findAllByTitleLikeAndShareIsTrue(String title);
 }
