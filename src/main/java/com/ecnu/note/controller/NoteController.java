@@ -26,6 +26,20 @@ import java.util.Set;
 public class NoteController {
     @Autowired
     private NoteService noteService;
+
+
+    @GetMapping("/recommend")
+    public BaseResponseVO recommend() {
+        String email = AuthUtil.getEmail();
+        List<Note> noteList = noteService.recommend(email);
+        return BaseResponseVO.success(noteList);
+    }
+
+    @GetMapping("/findByTag")
+    public BaseResponseVO findByTag(@RequestParam String tag) {
+        List<Note> noteList = noteService.findByTag(tag);
+        return BaseResponseVO.success(noteList);
+    }
     /**
     * @description: 点赞/踩
     * @param:  type取值star或hate
@@ -132,4 +146,6 @@ public class NoteController {
         Page<Note> notes = noteService.findMyNote(email, page - 1, size);
         return BaseResponseVO.success(notes);
     }
+
+
 }

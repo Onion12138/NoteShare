@@ -37,4 +37,8 @@ public interface NoteService {
     List<Knowledge> searchMindMap(String keyword);
 
     Page<Note> findMyNote(String email, Integer page, Integer size);
+
+    List<Note> recommend(String email);
+
+    List<Note> findByTag(String tag);
 }

@@ -14,4 +14,5 @@ import java.util.List;
 public interface NoteDao extends MongoRepository<Note, String> {
     List<Note> findByAuthorEmail(String email);
     Page<Note> findAllByIdIn(List<String> list, Pageable pageable);
+    List<Note> findAllByTag(String tag);
 }

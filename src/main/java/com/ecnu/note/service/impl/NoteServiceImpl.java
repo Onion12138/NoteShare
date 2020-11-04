@@ -24,6 +24,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
@@ -131,16 +132,6 @@ public class NoteServiceImpl implements NoteService {
         note.setUpdateTime(LocalDateTime.now());
         note.setSummary(getSummary(map.get("content")));
         noteDao.save(note);
-//        NoteSearch noteSearch = NoteSearch.builder()
-//                .title(note.getTitle())
-//                .createTime(note.getCreateTime().toString())
-//                .updateTime(note.getUpdateTime().toString())
-//                .email(note.getAuthorEmail())
-//                .summary(note.getSummary())
-//                .tag(note.getTag())
-//                .id(id)
-//                .build();
-//        new Thread(() -> searchDao.save(noteSearch)).start();
     }
 
     @Override
@@ -218,6 +209,22 @@ public class NoteServiceImpl implements NoteService {
         Map<Object, Object> entries = redisTemplate.opsForHash().entries(email + " : publish");
         List<String> ids = entries.values().stream().map(e -> (String) e).collect(Collectors.toList());
         return noteDao.findAllByIdIn(ids, PageRequest.of(page, size));
+    }
+
+    @Override
+    public List<Note> recommend(String email) {
+        List<Note> list = noteDao.findAll(Sort.by("star").descending());
+        String key = email + " : recommend";
+        Set<String> members = redisTemplate.opsForSet().members(key);
+        List<Note> recommend = list.stream().filter(e -> ! members.contains(e.getId())).limit(10).collect(Collectors.toList());
+        recommend.forEach(e -> redisTemplate.opsForSet().add(key, e.getId()));
+        return recommend;
+    }
+
+    @Override
+    public List<Note> findByTag(String tag) {
+
+        return noteDao.findAllByTag(tag);
     }
 
     private void incField(String noteId, String field) {
