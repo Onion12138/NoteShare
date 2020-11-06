@@ -228,11 +228,11 @@ public class NoteServiceImpl implements NoteService {
     @Override
     public List<Note> recommend(String email) {
         List<Note> list = noteDao.findAll(Sort.by("star").descending());
-        String key = email + " : recommend";
-        Set<String> members = redisTemplate.opsForSet().members(key);
-        List<Note> recommend = list.stream().filter(e -> ! members.contains(e.getId())).limit(10).collect(Collectors.toList());
-        recommend.forEach(e -> redisTemplate.opsForSet().add(key, e.getId()));
-        return recommend;
+//        String key = email + " : recommend";
+//        Set<String> members = redisTemplate.opsForSet().members(key);
+//        List<Note> recommend = list.stream().filter(e -> ! members.contains(e.getId())).limit(10).collect(Collectors.toList());
+//        recommend.forEach(e -> redisTemplate.opsForSet().add(key, e.getId()));
+        return list;
     }
 
     @Override
