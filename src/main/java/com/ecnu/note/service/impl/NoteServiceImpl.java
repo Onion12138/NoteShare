@@ -120,6 +120,8 @@ public class NoteServiceImpl implements NoteService {
     }
 
     private String getSummary(String document) {
+        document = document.replaceAll("!\\[.*]\\(.*\\)", "[图片]");
+        document = document.replaceAll("(```).*?(```)", "[代码]");
         return String.join(" ", HanLP.extractSummary(document, 10));
     }
 
@@ -208,7 +210,7 @@ public class NoteServiceImpl implements NoteService {
     public Page<Note> findMyNote(String email, Integer page, Integer size) {
         Map<Object, Object> entries = redisTemplate.opsForHash().entries(email + " : publish");
         List<String> ids = entries.values().stream().map(e -> (String) e).collect(Collectors.toList());
-        return noteDao.findAllByIdIn(ids, PageRequest.of(page, size));
+        return noteDao.findAllByIdInAndValidIsTrue(ids, PageRequest.of(page, size));
     }
 
     @Override
