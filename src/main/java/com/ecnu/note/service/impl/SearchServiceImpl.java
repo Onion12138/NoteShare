@@ -36,7 +36,7 @@ public class SearchServiceImpl implements SearchService {
         SearchRequest searchRequest = new SearchRequest("note");
         SearchSourceBuilder sourceBuilder = new SearchSourceBuilder();
 
-        sourceBuilder.from(page);
+        sourceBuilder.from(page - 1);
         sourceBuilder.size(10);
 
         MultiMatchQueryBuilder builder = new MultiMatchQueryBuilder(keyword,"title", "summary");
