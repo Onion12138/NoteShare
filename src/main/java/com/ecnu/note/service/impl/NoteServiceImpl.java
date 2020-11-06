@@ -110,7 +110,7 @@ public class NoteServiceImpl implements NoteService {
         noteSearch.setEmail(note.getAuthorEmail());
         noteSearch.setSummary(note.getSummary());
         noteSearch.setTag(note.getTag());
-        note.setId(id);
+        noteSearch.setId(id);
         searchDao.save(noteSearch);
         SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
         BoundZSetOperations<String, String> zset = redisTemplate.boundZSetOps("tag");
