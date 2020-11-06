@@ -3,13 +3,16 @@ package com.ecnu.note.service.impl;
 import com.ecnu.note.dao.KnowledgeDao;
 import com.ecnu.note.dao.NoteDao;
 import com.ecnu.note.dao.SearchDao;
+import com.ecnu.note.dao.UserDao;
 import com.ecnu.note.domain.mongo.Knowledge;
 import com.ecnu.note.domain.mongo.Note;
+import com.ecnu.note.domain.mongo.User;
 import com.ecnu.note.domain.search.NoteSearch;
 import com.ecnu.note.service.NoteService;
 import com.ecnu.note.utils.DownloadUtil;
 import com.ecnu.note.utils.KeyUtil;
 import com.ecnu.note.utils.UuidUtil;
+import com.ecnu.note.vo.UserVO;
 import com.google.gson.Gson;
 import com.hankcs.hanlp.HanLP;
 import com.qiniu.common.QiniuException;
@@ -55,6 +58,9 @@ public class NoteServiceImpl implements NoteService {
     private NoteDao noteDao;
 
     @Autowired
+    private UserDao userDao;
+
+    @Autowired
     private SearchDao searchDao;
 
     @Autowired
@@ -80,9 +86,14 @@ public class NoteServiceImpl implements NoteService {
         String id = KeyUtil.getUniqueKey();
         String email = map.get("authorEmail");
         String forkFrom = map.get("forkFrom");
+        User user = userDao.findById(email).get();
+        UserVO userVO = new UserVO();
+        userVO.setAvatar(user.getProfileUrl());
+        userVO.setEmail(email);
+        userVO.setNickname(user.getUsername());
         Note note = Note.builder()
                 .id(id)
-                .authorEmail(email)
+                .author(userVO)
                 .title(map.get("title"))
                 .authority(map.get("authority").equals("true"))
                 .createTime(LocalDateTime.now())
@@ -107,7 +118,7 @@ public class NoteServiceImpl implements NoteService {
         noteSearch.setTitle(note.getTitle());
         noteSearch.setCreateTime(note.getCreateTime().toString());
         noteSearch.setUpdateTime(note.getUpdateTime().toString());
-        noteSearch.setEmail(note.getAuthorEmail());
+        noteSearch.setEmail(email);
         noteSearch.setSummary(note.getSummary());
         noteSearch.setTag(note.getTag());
         noteSearch.setId(id);
@@ -120,8 +131,9 @@ public class NoteServiceImpl implements NoteService {
     }
 
     private String getSummary(String document) {
-        document = document.replaceAll("!\\[.*]\\(.*\\)", "[图片]");
-        document = document.replaceAll("(```).*?(```)", "[代码]");
+        document = document.replaceAll("!\\[.*]\\(.*?\\)", "[图片]");
+        document = document.replaceAll("(?s)(```).*?(```)", "[代码]");
+//        System.out.println(document);
         return String.join(" ", HanLP.extractSummary(document, 10));
     }
 

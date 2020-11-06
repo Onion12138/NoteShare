@@ -1,5 +1,6 @@
 package com.ecnu.note.domain.mongo;
 
+import com.ecnu.note.vo.UserVO;
 import lombok.Builder;
 import lombok.Data;
 import org.springframework.data.annotation.Id;
@@ -18,7 +19,7 @@ import java.time.LocalDateTime;
 public class Note implements Serializable {
     @Id
     private String id;
-    private String authorEmail;
+    private UserVO author;
     private String title;
     private Boolean authority;
     private String forkFrom;
