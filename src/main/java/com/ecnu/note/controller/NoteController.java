@@ -29,9 +29,9 @@ public class NoteController {
 
 
     @GetMapping("/recommend")
-    public BaseResponseVO recommend() {
-        String email = AuthUtil.getEmail();
-        List<Note> noteList = noteService.recommend(email);
+    public BaseResponseVO recommend(@RequestParam(defaultValue = "1") Integer page,
+                                    @RequestParam(defaultValue = "5") Integer size) {
+        List<Note> noteList = noteService.recommend(page, size);
         return BaseResponseVO.success(noteList);
     }
 

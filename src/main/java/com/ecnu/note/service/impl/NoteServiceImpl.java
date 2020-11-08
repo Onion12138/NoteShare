@@ -27,7 +27,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Sort;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
@@ -133,7 +132,6 @@ public class NoteServiceImpl implements NoteService {
     private String getSummary(String document) {
         document = document.replaceAll("!\\[.*]\\(.*?\\)", "[图片]");
         document = document.replaceAll("(?s)(```).*?(```)", "[代码]");
-//        System.out.println(document);
         return String.join(" ", HanLP.extractSummary(document, 10));
     }
 
@@ -202,13 +200,6 @@ public class NoteServiceImpl implements NoteService {
 
 
     @Override
-    public List<Note> findByAuthor(String email) {
-        List<Note> notes = noteDao.findByAuthorEmail(email);
-        notes.removeIf(e->!e.getValid());
-        return notes;
-    }
-
-    @Override
     public Set<ZSetOperations.TypedTuple<String>> findHotTag() {
         return redisTemplate.opsForZSet().rangeWithScores("tag", 0, - 1);
     }
@@ -226,12 +217,9 @@ public class NoteServiceImpl implements NoteService {
     }
 
     @Override
-    public List<Note> recommend(String email) {
-        List<Note> list = noteDao.findAll(Sort.by("star").descending());
-//        String key = email + " : recommend";
-//        Set<String> members = redisTemplate.opsForSet().members(key);
-//        List<Note> recommend = list.stream().filter(e -> ! members.contains(e.getId())).limit(10).collect(Collectors.toList());
-//        recommend.forEach(e -> redisTemplate.opsForSet().add(key, e.getId()));
+    public List<Note> recommend(int page, int size) {
+        List<Note> list = noteDao.findAll(PageRequest.of(page - 1, size)).getContent();
+        Collections.shuffle(list);
         return list;
     }
 

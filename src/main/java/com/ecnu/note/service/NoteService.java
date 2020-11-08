@@ -30,15 +30,13 @@ public interface NoteService {
 
     String uploadPicture(String noteId, MultipartFile file);
 
-    List<Note> findByAuthor(String email);
-
     Set<ZSetOperations.TypedTuple<String>> findHotTag();
 
     List<Knowledge> searchMindMap(String keyword);
 
     Page<Note> findMyNote(String email, Integer page, Integer size);
 
-    List<Note> recommend(String email);
-
     List<Note> findByTag(String tag);
+
+    List<Note> recommend(int page, int size);
 }
