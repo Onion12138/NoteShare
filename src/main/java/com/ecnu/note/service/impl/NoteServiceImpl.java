@@ -218,9 +218,7 @@ public class NoteServiceImpl implements NoteService {
 
     @Override
     public List<Note> recommend(int page, int size) {
-        List<Note> list = noteDao.findAll(PageRequest.of(page - 1, size)).getContent();
-        Collections.shuffle(list);
-        return list;
+        return noteDao.findAll(PageRequest.of(page - 1, size)).getContent();
     }
 
     @Override
