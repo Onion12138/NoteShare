@@ -41,6 +41,7 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
+import java.util.stream.Collectors;
 
 /**
  * @author onion
@@ -106,7 +107,7 @@ public class UserServiceImpl implements UserService {
     public Map<String, Object> login(LoginVO loginVO) {
         String email = loginVO.getEmail();
         Optional<User> optionalUser = userDao.findById(email);
-        if (optionalUser.isEmpty()) {
+        if (!optionalUser.isPresent()) {
             throw new RuntimeException("用户不存在");
         }
         User user = optionalUser.get();
@@ -227,10 +228,12 @@ public class UserServiceImpl implements UserService {
         String key = email + " : " + type;
         Map<Object, Object> entries = redisTemplate.opsForHash().entries(key);
         List<RecordVO> recordVOList = new ArrayList<>();
+        List<String> noteIds = entries.values().stream().map(e -> (String) e).collect(Collectors.toList());
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+        Iterable<Note> notes = noteDao.findAllById(noteIds);
         for (Map.Entry<Object, Object> entry : entries.entrySet()) {
             RecordVO recordVO = new RecordVO();
             recordVO.setId((String) entry.getValue());
-            SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
             Date date = null;
             try {
                 date = sdf.parse((String) entry.getKey());
@@ -238,11 +241,15 @@ public class UserServiceImpl implements UserService {
                 e.printStackTrace();
             }
             recordVO.setTime(date);
-            recordVO.setNote(noteDao.findById(recordVO.getId()).orElse(Note.builder().build()));
+            for (Note note : notes) {
+                if (recordVO.getId().equals(note.getId())) {
+                    recordVO.setNote(note);
+                    break;
+                }
+            }
             recordVOList.add(recordVO);
         }
-        recordVOList.sort((a, b) -> b.getTime().compareTo(a.getTime()));
-        return recordVOList;
+        return recordVOList.stream().sorted((a, b) -> b.getTime().compareTo(a.getTime())).limit(20).collect(Collectors.toList());
     }
 
 

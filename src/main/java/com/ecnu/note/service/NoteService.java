@@ -1,5 +1,6 @@
 package com.ecnu.note.service;
 
+import com.ecnu.note.domain.MindMap;
 import com.ecnu.note.domain.mongo.Knowledge;
 import com.ecnu.note.domain.mongo.Note;
 import org.springframework.data.domain.Page;
@@ -39,4 +40,6 @@ public interface NoteService {
     List<Note> findByTag(String tag);
 
     List<Note> recommend(int page, int size);
+
+    void collectMindMap(String email, MindMap mindMap);
 }

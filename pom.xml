@@ -15,10 +15,11 @@
         <relativePath/> <!-- lookup parent from repository -->
     </parent>
 
-    <properties>
-        <maven.compiler.target>11</maven.compiler.target>
-        <maven.compiler.source>11</maven.compiler.source>
-    </properties>
+<!--    <properties>-->
+<!--        <java.version>11</java.version>-->
+<!--        <maven.compiler.target>11</maven.compiler.target>-->
+<!--        <maven.compiler.source>11</maven.compiler.source>-->
+<!--    </properties>-->
     <dependencies>
 
 

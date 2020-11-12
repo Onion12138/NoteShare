@@ -1,5 +1,6 @@
 package com.ecnu.note.controller;
 
+import com.ecnu.note.domain.MindMap;
 import com.ecnu.note.domain.mongo.Knowledge;
 import com.ecnu.note.domain.mongo.Note;
 import com.ecnu.note.service.NoteService;
@@ -30,11 +31,17 @@ public class NoteController {
 
     @GetMapping("/recommend")
     public BaseResponseVO recommend(@RequestParam(defaultValue = "1") Integer page,
-                                    @RequestParam(defaultValue = "5") Integer size) {
+                                    @RequestParam(defaultValue = "6") Integer size) {
         List<Note> noteList = noteService.recommend(page, size);
         return BaseResponseVO.success(noteList);
     }
 
+    @PostMapping("/collectMindMap")
+    public BaseResponseVO collectMindMap(@RequestBody MindMap mindMap) {
+        String email = AuthUtil.getEmail();
+        noteService.collectMindMap(email, mindMap);
+        return BaseResponseVO.success();
+    }
     @GetMapping("/findByTag")
     public BaseResponseVO findByTag(@RequestParam String tag) {
         List<Note> noteList = noteService.findByTag(tag);

@@ -4,6 +4,7 @@ import com.ecnu.note.dao.KnowledgeDao;
 import com.ecnu.note.dao.NoteDao;
 import com.ecnu.note.dao.SearchDao;
 import com.ecnu.note.dao.UserDao;
+import com.ecnu.note.domain.MindMap;
 import com.ecnu.note.domain.mongo.Knowledge;
 import com.ecnu.note.domain.mongo.Note;
 import com.ecnu.note.domain.mongo.User;
@@ -130,6 +131,8 @@ public class NoteServiceImpl implements NoteService {
     }
 
     private String getSummary(String document) {
+        document = document.replaceAll("#"," ");
+        document = document.replaceAll("-", " ");
         document = document.replaceAll("!\\[.*]\\(.*?\\)", "[图片]");
         document = document.replaceAll("(?s)(```).*?(```)", "[代码]");
         return String.join(" ", HanLP.extractSummary(document, 10));
@@ -222,6 +225,20 @@ public class NoteServiceImpl implements NoteService {
     }
 
     @Override
+    public void collectMindMap(String email, MindMap mindMap) {
+        Knowledge knowledge = Knowledge.builder()
+                .mindMap(mindMap)
+                .share(false)
+                .id(KeyUtil.getUniqueKey())
+                .email(email)
+                .title(mindMap.getLabel())
+                .createTime(LocalDateTime.now())
+                .updateTime(LocalDateTime.now())
+                .build();
+        knowledgeDao.save(knowledge);
+    }
+
+    @Override
     public List<Note> findByTag(String tag) {
 
         return noteDao.findAllByTag(tag);
@@ -245,7 +262,7 @@ public class NoteServiceImpl implements NoteService {
 
     private Note findById(String noteId) {
         Optional<Note> optional = noteDao.findById(noteId);
-        if (optional.isEmpty()) {
+        if (!optional.isPresent()) {
             throw new RuntimeException("笔记不存在");
         }
         return optional.get();

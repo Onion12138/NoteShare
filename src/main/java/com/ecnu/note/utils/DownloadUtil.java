@@ -2,8 +2,8 @@ package com.ecnu.note.utils;
 
 import com.qiniu.util.Auth;
 
+import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
-import java.nio.charset.StandardCharsets;
 
 /**
  * @author onion
@@ -12,7 +12,12 @@ import java.nio.charset.StandardCharsets;
 public class DownloadUtil {
     public static String getFileUrl(String filename, String accessKey, String secretKey, Long expireInSeconds){
         String domainOfBucket = "http://ecnuonion.club";
-        String encodedFileName = URLEncoder.encode(filename, StandardCharsets.UTF_8).replace("+", "%20");
+        String encodedFileName = null;
+        try {
+            encodedFileName = URLEncoder.encode(filename, "utf-8").replace("+", "%20");
+        } catch (UnsupportedEncodingException e) {
+            e.printStackTrace();
+        }
         String publicUrl = String.format("%s/%s", domainOfBucket, encodedFileName);
         Auth auth = Auth.create(accessKey, secretKey);
         return auth.privateDownloadUrl(publicUrl, expireInSeconds);
