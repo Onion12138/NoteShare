@@ -135,7 +135,11 @@ public class NoteServiceImpl implements NoteService {
         document = document.replaceAll("-", " ");
         document = document.replaceAll("!\\[.*]\\(.*?\\)", "[图片]");
         document = document.replaceAll("(?s)(```).*?(```)", "[代码]");
-        return String.join(" ", HanLP.extractSummary(document, 10));
+        List<String> list = HanLP.extractSummary(document, 6);
+        if (list.size() < 6) {
+            return document;
+        }
+        return String.join(" ", list);
     }
 
     @Override
@@ -220,8 +224,13 @@ public class NoteServiceImpl implements NoteService {
     }
 
     @Override
-    public List<Note> recommend(int page, int size) {
-        return noteDao.findAll(PageRequest.of(page - 1, size)).getContent();
+    public List<Note> recommend() {
+        Random random = new Random();
+        int page = random.nextInt(90);
+        List<Note> noteList = noteDao.findAll(PageRequest.of(page, 6)).getContent();
+        List<Note> ret = new ArrayList<>(noteList);
+        Collections.shuffle(ret);
+        return ret;
     }
 
     @Override
@@ -239,9 +248,9 @@ public class NoteServiceImpl implements NoteService {
     }
 
     @Override
-    public List<Note> findByTag(String tag) {
+    public List<Note> findByTag(String tag, int page) {
 
-        return noteDao.findAllByTag(tag);
+        return noteDao.findAllByTag(tag, PageRequest.of(page, 10));
     }
 
     private void incField(String noteId, String field) {

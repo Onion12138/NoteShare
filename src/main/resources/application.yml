@@ -1,17 +1,6 @@
 spring:
-  data:
-    mongodb:
-      host: 182.61.23.125
-      database: noteshare
-      username: admin
-      password: admin
-      authentication-database: admin
-
-  redis:
-    host: 182.61.23.125
-    port: 6379
-    password: 969023014
-
+  profiles:
+    active: dev
   mail:
     protocol: smtp
     host: smtp.qq.com
@@ -24,19 +13,13 @@ spring:
         smtp:
           ssl:
             enable: true
-    from: notehub官方
+    from: 1452618379@qq.com
   elasticsearch:
     rest:
       username: elastic
       uris: http://139.9.217.28:9200
       password: 969023014
 
-
-management:
-  endpoints:
-    web:
-      exposure:
-        include: '*'
 
 qiniu:
   accessKey: "SStPJbNpriAFEzb0LvB1ooO7X__CB5xpwt8cE8UE"

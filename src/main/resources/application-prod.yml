@@ -1,0 +1,14 @@
+spring:
+  data:
+    mongodb:
+      host: 172.17.0.1
+      database: noteshare
+      username: admin
+      password: admin
+      authentication-database: admin
+
+  redis:
+    host: 172.17.0.1
+    port: 6379
+    password: 969023014
+

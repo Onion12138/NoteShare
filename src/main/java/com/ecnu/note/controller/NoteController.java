@@ -1,5 +1,6 @@
 package com.ecnu.note.controller;
 
+import com.ecnu.note.dao.NoteDao;
 import com.ecnu.note.domain.MindMap;
 import com.ecnu.note.domain.mongo.Knowledge;
 import com.ecnu.note.domain.mongo.Note;
@@ -15,6 +16,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Random;
 import java.util.Set;
 
 /**
@@ -30,9 +32,8 @@ public class NoteController {
 
 
     @GetMapping("/recommend")
-    public BaseResponseVO recommend(@RequestParam(defaultValue = "1") Integer page,
-                                    @RequestParam(defaultValue = "6") Integer size) {
-        List<Note> noteList = noteService.recommend(page, size);
+    public BaseResponseVO recommend() {
+        List<Note> noteList = noteService.recommend();
         return BaseResponseVO.success(noteList);
     }
 
@@ -42,9 +43,10 @@ public class NoteController {
         noteService.collectMindMap(email, mindMap);
         return BaseResponseVO.success();
     }
+
     @GetMapping("/findByTag")
-    public BaseResponseVO findByTag(@RequestParam String tag) {
-        List<Note> noteList = noteService.findByTag(tag);
+    public BaseResponseVO findByTag(@RequestParam String tag, @RequestParam(defaultValue = "1") Integer page) {
+        List<Note> noteList = noteService.findByTag(tag, page - 1);
         return BaseResponseVO.success(noteList);
     }
     /**
@@ -64,8 +66,8 @@ public class NoteController {
     */
     @PostMapping("/publish")
     public BaseResponseVO publishNote(@RequestParam Map<String, String> map) {
-        String email = AuthUtil.getEmail();
-        map.put("authorEmail", email);
+//        String email = AuthUtil.getEmail();
+//        map.put("authorEmail", email);
         String id = noteService.publishNote(map);
         return BaseResponseVO.success(id);
     }
@@ -154,5 +156,19 @@ public class NoteController {
         return BaseResponseVO.success(notes);
     }
 
-
+    @Autowired
+    private NoteDao noteDao;
+    @GetMapping("/generateNoteData")
+    public BaseResponseVO generate() {
+        List<Note> noteList = noteDao.findAll();
+        Random random = new Random();
+        for (Note note : noteList) {
+            note.setCollect(random.nextInt(20));
+            note.setHate(random.nextInt(5));
+            note.setStar(random.nextInt(50));
+            note.setView(random.nextInt(100) + 20);
+            noteDao.save(note);
+        }
+        return BaseResponseVO.success();
+    }
 }
