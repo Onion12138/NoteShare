@@ -37,7 +37,7 @@ public interface NoteService {
 
     Page<Note> findMyNote(String email, Integer page, Integer size);
 
-    List<Note> findByTag(String tag, int page);
+    Page<Note> findByTag(String tag, int page);
 
     List<Note> recommend();
 

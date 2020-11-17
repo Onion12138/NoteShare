@@ -46,7 +46,7 @@ public class NoteController {
 
     @GetMapping("/findByTag")
     public BaseResponseVO findByTag(@RequestParam String tag, @RequestParam(defaultValue = "1") Integer page) {
-        List<Note> noteList = noteService.findByTag(tag, page - 1);
+        Page<Note> noteList = noteService.findByTag(tag, page - 1);
         return BaseResponseVO.success(noteList);
     }
     /**

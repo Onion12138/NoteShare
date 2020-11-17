@@ -248,8 +248,7 @@ public class NoteServiceImpl implements NoteService {
     }
 
     @Override
-    public List<Note> findByTag(String tag, int page) {
-
+    public Page<Note> findByTag(String tag, int page) {
         return noteDao.findAllByTag(tag, PageRequest.of(page, 10));
     }
 
